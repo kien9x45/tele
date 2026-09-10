@@ -3,12 +3,10 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-// Kích hoạt cấu hình trung gian bắt buộc cho API
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Cấu hình cây trồng đồng bộ
 const CROPS_CONFIG = {
     wheat: { name: "Lúa mì", cost: 10, revenue: 20, time: 10 },
     carrot: { name: "Cà rốt", cost: 30, revenue: 65, time: 25 }
@@ -16,26 +14,25 @@ const CROPS_CONFIG = {
 
 let usersDatabase = {};
 
+// Hàm cốt lõi: Tự động kiểm tra và sinh dữ liệu nếu chưa tồn tại
 function getOrCreateUser(userId, username) {
-    // Ép kiểu userId về dạng chuỗi để tránh lỗi so sánh kiểu dữ liệu giữa Client và Server
     const sId = String(userId);
     if (!usersDatabase[sId]) {
         usersDatabase[sId] = {
             id: sId,
             username: username || "Nông dân Mates",
-            balance: 100, // Tặng 100 xu vàng trải nghiệm
+            balance: 100, 
             plots: Array(6).fill(null).map(() => ({ status: 'empty', cropType: null, readyAt: null }))
         };
     }
     return usersDatabase[sId];
 }
 
-// Điều hướng trang chủ phục vụ index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API 1: Đồng bộ dữ liệu tài khoản
+// API 1: Đồng bộ dữ liệu
 app.post('/api/user-data', (req, res) => {
     const { userId, username } = req.body;
     if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
@@ -48,17 +45,16 @@ app.post('/api/user-data', (req, res) => {
             plot.status = 'ready';
         }
     });
-
     res.json(user);
 });
 
-// API 2: Trồng cây
+// API 2: Trồng cây (Đã tích hợp tự động sửa lỗi thiếu User)
 app.post('/api/plant', (req, res) => {
-    const { userId, plotIndex, cropType } = req.body;
-    const sId = String(userId);
-    const user = usersDatabase[sId];
-    
-    if (!user) return res.status(444).json({ error: "Không tìm thấy thông tin người chơi trên hệ thống!" });
+    const { userId, username, plotIndex, cropType } = req.body; // Lấy thêm username từ client gửi lên
+    if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
+
+    // VÁ LỖI: Nếu RAM server bị xóa, tự động tạo lại User ngay lập tức
+    const user = getOrCreateUser(userId, username);
     
     const crop = CROPS_CONFIG[cropType];
     const plot = user.plots[plotIndex];
@@ -75,13 +71,13 @@ app.post('/api/plant', (req, res) => {
     res.json({ success: true, user });
 });
 
-// API 3: Thu hoạch
+// API 3: Thu hoạch (Đã tích hợp tự động sửa lỗi thiếu User)
 app.post('/api/harvest', (req, res) => {
-    const { userId, plotIndex } = req.body;
-    const sId = String(userId);
-    const user = usersDatabase[sId];
-    
-    if (!user) return res.status(444).json({ error: "Không tìm thấy thông tin người chơi trên hệ thống!" });
+    const { userId, username, plotIndex } = req.body;
+    if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
+
+    // VÁ LỖI: Tự động tạo lại User nếu không tìm thấy dữ liệu cũ trong RAM
+    const user = getOrCreateUser(userId, username);
 
     const plot = user.plots[plotIndex];
     const now = Date.now();
@@ -91,7 +87,7 @@ app.post('/api/harvest', (req, res) => {
     }
 
     if (plot.status !== 'ready') {
-        return res.status(400).json({ error: "Nông sản chưa chín để thu hoạch!" });
+        return res.status(400).json({ error: "Nông sản chưa chín!" });
     }
 
     const crop = CROPS_CONFIG[plot.cropType];
@@ -104,7 +100,5 @@ app.post('/api/harvest', (req, res) => {
     res.json({ success: true, user });
 });
 
-// Tối ưu cổng mạng động cho Render
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 Hệ thống đang chạy ổn định tại cổng ${port}`));
-
+app.listen(port, () => console.log(`🚀 Hệ thống hoạt động tại cổng ${port}`));
