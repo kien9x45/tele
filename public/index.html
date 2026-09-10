@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="google" content="notranslate">
-    <title>Farm TON Clone 3D</title>
+    <title>Farmingmates Pixel Edition</title>
     <script src="https://tailwindcss.com"></script>
     <script src="https://telegram.org"></script>
     <style>
@@ -16,81 +16,76 @@
         }
         body { 
             touch-action: manipulation; 
-            font-family: system-ui, -apple-system, sans-serif;
-            background: linear-gradient(180deg, #b3e5fc 0%, #d1f2d9 50%, #a7f3d0 100%);
+            font-family: 'Courier New', Courier, monospace, system-ui;
+            background-color: #4a752c; /* Màu cỏ xanh rì phong cách Retro */
+            background-image: radial-gradient(#5c8e32 15%, transparent 16%), radial-gradient(#5c8e32 15%, transparent 16%);
+            background-size: 16px 16px;
+            background-position: 0 0, 8px 8px;
         }
-        /* Không gian dựng hình Isometric 3D giống hệt Farm TON */
-        .stage-3d {
-            perspective: 1200px;
-            perspective-origin: 50% 30%;
+        /* Khung viền gỗ đập hộp phong cách Farmingmates */
+        .pixel-wood-border {
+            border: 4px solid #3a2212;
+            background: #734524;
+            box-shadow: inset -4px -4px 0px #4d2d17, inset 4px 4px 0px #9e6438, 0 6px 12px rgba(0,0,0,0.3);
         }
-        .field-3d {
-            transform: rotateX(32deg) rotateY(0deg) rotateZ(-20deg);
-            transform-style: preserve-3d;
+        /* Ô đất phẳng đục lỗ cày xới */
+        .pixel-plot {
+            border: 3px solid #2b180a;
+            background: #543118;
+            box-shadow: inset 3px 3px 0px #1a0e06, 0 4px 0px rgba(0,0,0,0.2);
+            transition: all 0.1s ease;
         }
-        /* Nút bấm thiết kế viền khối giả gỗ dày dặn */
-        .wood-btn {
-            box-shadow: 0 6px 0 #b45309, 0 10px 15px rgba(0,0,0,0.2);
-            transition: all 0.05s ease;
+        .pixel-plot:active {
+            transform: translateY(2px);
+            box-shadow: inset 3px 3px 0px #1a0e06, 0 2px 0px rgba(0,0,0,0.2);
         }
-        .wood-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #b45309, 0 4px 6px rgba(0,0,0,0.2);
+        /* Thanh chọn công cụ giả gỗ */
+        .pixel-btn {
+            border: 3px solid #2b180a;
+            box-shadow: inset -3px -3px 0px rgba(0,0,0,0.2), inset 3px 3px 0px rgba(255,255,255,0.2);
+            transition: transform 0.05s ease;
         }
-        /* Khối đất lập thể có độ dày mặt bên độc lập */
-        .plot-3d {
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.15s ease;
-        }
-        .plot-side {
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background: #3e2723;
-            transform: rotateX(-90deg);
-            transform-origin: bottom;
-            border-radius: 0 0 12px 12px;
+        .pixel-btn:active {
+            transform: translateY(2px);
         }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col overflow-hidden select-none">
 
-    <!-- Top Bar chuẩn Game Token -->
-    <div class="p-4 flex justify-between items-center bg-white/60 backdrop-blur-lg border-b border-white/40 shadow-md z-50">
-        <div class="flex items-center gap-2.5">
-            <div id="avatar" class="w-10 h-10 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white flex items-center justify-center font-bold text-xl shadow border-2 border-white">👨‍🌾</div>
+    <!-- Top Bar mang phong cách bảng gỗ thông tin -->
+    <div class="p-3 mx-4 mt-4 rounded-xl pixel-wood-border flex justify-between items-center z-50 text-white">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded bg-[#4a752c] border-2 border-[#3a2212] flex items-center justify-center font-bold text-lg shadow-inner">👨</div>
             <div class="flex flex-col">
-                <span id="username" class="font-black text-xs text-emerald-950 uppercase tracking-tight">Đang tải...</span>
-                <span class="text-[9px] text-amber-700 font-extrabold bg-amber-100 px-1.5 py-0.5 rounded-full mt-0.5 shadow-inner">LEVEL 1 FARMER</span>
+                <span id="username" class="font-black text-xs uppercase tracking-tight text-amber-100">Đang tải...</span>
+                <span class="text-[8px] text-green-300 font-bold tracking-widest mt-0.5">FARMINGMATES</span>
             </div>
         </div>
-        <div class="bg-gradient-to-r from-yellow-400 via-orange-400 to-amber-500 text-white font-black px-4 py-2 rounded-2xl text-xs shadow-lg border-2 border-white flex items-center gap-1.5 animate-pulse">
-            🪙 <span id="balance">0</span> <span class="text-[8px] opacity-75 font-bold">GOLD</span>
+        <div class="bg-[#2b180a] border-2 border-[#4d2d17] text-yellow-400 font-black px-4 py-1.5 rounded-lg text-xs shadow-inner flex items-center gap-1.5">
+            🪙 <span id="balance" class="font-mono">0</span>
         </div>
     </div>
 
-    <!-- Cánh đồng 3D góc nghiêng lập thể lớn giữa màn hình -->
-    <div class="flex-1 w-full p-6 flex items-center justify-center stage-3d overflow-hidden">
-        <div class="grid grid-cols-2 gap-x-8 gap-y-7 w-full max-w-[280px] sm:max-w-[320px] field-3d" id="grid-container">
-            <!-- JavaScript kết xuất hình học 3D tại đây -->
+    <!-- Khu ruộng đất phẳng lưới vuông từ trên xuống -->
+    <div class="flex-1 w-full p-6 flex items-center justify-center overflow-hidden">
+        <div class="pixel-wood-border p-4 rounded-2xl w-full max-w-[320px]">
+            <div class="grid grid-cols-2 gap-3 w-full" id="grid-container">
+                <!-- Các ô đất pixel tự sinh từ app.js -->
+            </div>
         </div>
     </div>
 
-    <!-- Hộp chọn hạt giống phong cách UI Gỗ tròn dày -->
-    <div class="p-4 bg-gradient-to-b from-amber-50 to-orange-100 border-t-4 border-amber-600 shadow-2xl rounded-t-[2.5rem] z-50 pb-8 w-full max-w-md mx-auto">
-        <div class="w-16 h-1.5 bg-amber-800/20 rounded-full mx-auto mb-4"></div>
-        <p class="text-[10px] font-black text-amber-900 mb-4 tracking-widest uppercase text-center drop-shadow-sm">🌾 CỬA HÀNG NÔNG SẢN XU TON 🥕</p>
-        <div class="flex gap-4 px-3">
-            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-3.5 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-500 border border-amber-200 text-amber-950 font-black text-xs flex flex-col items-center justify-center wood-btn">
-                <span class="text-2xl drop-shadow">🌾</span>
-                <span class="mt-1">Lúa mì (10 🪙)</span>
+    <!-- Hộp chọn hạt giống phong cách cổ điển phẳng -->
+    <div class="p-4 mx-4 mb-6 rounded-2xl pixel-wood-border text-white w-full max-w-sm mx-auto z-50">
+        <p class="text-[9px] font-black text-amber-200 mb-3 tracking-widest uppercase text-center">⛏️ CHỌN NÔNG SẢN ĐỂ CANH TÁC ⛏️</p>
+        <div class="flex gap-3">
+            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-2.5 rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 text-amber-950 font-black text-xs flex flex-col items-center justify-center pixel-btn border-amber-700">
+                <span class="text-xl">🌾</span>
+                <span class="mt-0.5 font-mono text-[10px]">Lúa mì (10)</span>
             </button>
-            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-3.5 rounded-2xl bg-gradient-to-b from-slate-200 to-slate-300 border border-slate-100 text-slate-700 font-black text-xs flex flex-col items-center justify-center shadow-inner">
-                <span class="text-2xl opacity-50">🥕</span>
-                <span class="mt-1">Cà rốt (30 🪙)</span>
+            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-2.5 rounded-lg bg-[#3a2212] text-amber-500 font-black text-xs flex flex-col items-center justify-center pixel-btn border-[#1a0e06]">
+                <span class="text-xl opacity-40">🥕</span>
+                <span class="mt-0.5 font-mono text-[10px]">Cà rốt (30)</span>
             </button>
         </div>
     </div>
