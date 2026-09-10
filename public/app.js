@@ -2,7 +2,7 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const userId = tg?.initDataUnsafe?.user?.id || 12345; 
-const username = tg?.initDataUnsafe?.user?.first_name || "Nông dân TON";
+const username = tg?.initDataUnsafe?.user?.first_name || "Nông dân Mates";
 
 const SERVER_URL = ""; 
 
@@ -15,11 +15,11 @@ function selectCrop(type) {
     const btnCarrot = document.getElementById('btn-carrot');
     
     if (type === 'wheat') {
-        btnWheat.className = "flex-1 py-3.5 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-500 border border-amber-200 text-amber-950 font-black text-xs flex flex-col items-center justify-center wood-btn";
-        btnCarrot.className = "flex-1 py-3.5 rounded-2xl bg-gradient-to-b from-slate-200 to-slate-300 border border-slate-100 text-slate-700 font-black text-xs flex flex-col items-center justify-center shadow-inner";
+        btnWheat.className = "flex-1 py-2.5 rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 text-amber-950 font-black text-xs flex flex-col items-center justify-center pixel-btn border-amber-700";
+        btnCarrot.className = "flex-1 py-2.5 rounded-lg bg-[#3a2212] text-amber-500 font-black text-xs flex flex-col items-center justify-center pixel-btn border-[#1a0e06]";
     } else {
-        btnWheat.className = "flex-1 py-3.5 rounded-2xl bg-gradient-to-b from-slate-200 to-slate-300 border border-slate-100 text-slate-700 font-black text-xs flex flex-col items-center justify-center shadow-inner";
-        btnCarrot.className = "flex-1 py-3.5 rounded-2xl bg-gradient-to-b from-orange-300 to-orange-500 border border-orange-200 text-orange-950 font-black text-xs flex flex-col items-center justify-center wood-btn";
+        btnWheat.className = "flex-1 py-2.5 rounded-lg bg-[#3a2212] text-amber-500 font-black text-xs flex flex-col items-center justify-center pixel-btn border-[#1a0e06]";
+        btnCarrot.className = "flex-1 py-2.5 rounded-lg bg-gradient-to-b from-orange-400 to-orange-600 text-orange-950 font-black text-xs flex flex-col items-center justify-center pixel-btn border-orange-700";
     }
 }
 
@@ -32,7 +32,7 @@ async function fetchUserData() {
         });
         localUserData = await response.json();
         renderFarm();
-    } catch (e) { console.error("Lỗi đồng bộ dữ liệu Farm TON", e); }
+    } catch (e) { console.error("Lỗi đồng bộ dữ liệu Farmingmates", e); }
 }
 
 async function handlePlotClick(index, currentStatus) {
@@ -60,7 +60,7 @@ async function handlePlotClick(index, currentStatus) {
         
         localUserData = resData.user;
         renderFarm();
-        if (tg) tg.HapticFeedback.impactOccurred('heavy');
+        if (tg) tg.HapticFeedback.impactOccurred('medium');
     } catch (e) { console.error("Lỗi kết nối API", e); }
 }
 
@@ -74,92 +74,72 @@ function renderFarm() {
     grid.innerHTML = '';
 
     localUserData.plots.forEach((plot, index) => {
-        let style = "";
+        let style = "pixel-plot";
         let content = "";
         const now = Date.now();
 
-        // Cấu hình khối đất lập thể mặt trên (Top Face)
+        // 1. ĐẤT TƠI XỐP PHẲNG (Pixel Art màu đất tối)
         if (plot.status === 'empty') {
-            style = "bg-gradient-to-b from-amber-700 to-amber-900 shadow-[inset_0_4px_8px_rgba(0,0,0,0.5)] border-t border-amber-600 hover:brightness-110";
             content = `
-                <div class="w-full h-full flex items-center justify-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]">
-                    <svg viewBox="0 0 100 100" xmlns="http://w3.org">
-                        <ellipse cx="50" cy="55" rx="36" ry="16" fill="#4e342e" opacity="0.6"/>
-                        <ellipse cx="50" cy="48" rx="28" ry="12" fill="#5c3317" />
-                        <path d="M30 46q10-4 20 0M42 50q4-2 8 0" stroke="#3e2723" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    </svg>
-                </div>
+                <svg viewBox="0 0 32 32" class="w-12 h-12" style="image-rendering: pixelated;">
+                    <rect x="4" y="8" width="24" height="16" fill="#3d2314"/>
+                    <rect x="6" y="10" width="20" height="12" fill="#472917"/>
+                    <rect x="8" y="12" width="4" height="2" fill="#2b180a"/>
+                    <rect x="18" y="16" width="6" height="2" fill="#2b180a"/>
+                </svg>
             `;
         } 
+        // 2. MẦM CÂY ĐANG LÊN (Pixel mầm xanh 8-bit sắc nét + Giây đếm ngược bảng đen)
         else if (plot.status === 'growing' && now < plot.readyAt) {
-            style = "bg-gradient-to-b from-amber-700 to-amber-900 border-t border-amber-600";
             const secondsLeft = Math.ceil((plot.readyAt - now) / 1000);
             content = `
-                <div class="w-full h-full flex flex-col items-center justify-center relative">
-                    <svg viewBox="0 0 100 100" class="w-14 h-14 animate-pulse drop-shadow-[0_6px_4px_rgba(0,0,0,0.5)]" xmlns="http://w3.org">
-                        <ellipse cx="50" cy="65" rx="20" ry="8" fill="#3e2723" />
-                        <path d="M50 65 Q45 42 52 22" stroke="#22c55e" stroke-width="5" stroke-linecap="round" fill="none"/>
-                        <path d="M52 22 C64 16 68 30 52 34 Z" fill="#4ade80" stroke="#16a34a" stroke-width="0.8"/>
-                        <path d="M48 34 C32 30 36 44 49 40 Z" fill="#22c55e" stroke="#15803d" stroke-width="0.8"/>
+                <div class="w-full h-full flex flex-col items-center justify-center relative p-1">
+                    <svg viewBox="0 0 32 32" class="w-10 h-10 animate-pulse" style="image-rendering: pixelated;">
+                        <rect x="15" y="16" width="2" height="10" fill="#4caf50"/>
+                        <rect x="12" y="14" width="4" height="3" fill="#8bc34a"/>
+                        <rect x="16" y="12" width="5" height="3" fill="#8bc34a"/>
                     </svg>
-                    <div class="absolute bottom-2 bg-slate-950/80 text-yellow-300 font-mono text-[9px] font-black px-2 py-0.5 rounded-full border border-yellow-400 shadow-md transform translate-z-10">
+                    <div class="absolute bottom-1 bg-[#1a0e06] border border-[#3a2212] text-green-400 font-mono text-[8px] px-1 py-0.5 rounded tracking-tighter">
                         ${secondsLeft}s
                     </div>
                 </div>
             `;
         } 
+        // 3. NÔNG SẢN CHÍN PHONG CÁCH RETRO (Lúa mì hạt lớn/Cà rốt khối)
         else if (plot.status === 'ready' || (plot.status === 'growing' && now >= plot.readyAt)) {
-            style = "bg-gradient-to-b from-emerald-500 to-teal-600 border-t border-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:brightness-110";
+            style = "pixel-plot bg-[#60a5fa]/20 border-emerald-500 animate-pulse";
             plot.status = 'ready'; 
 
             let graphicSvg = "";
             if (plot.cropType === 'wheat') {
                 graphicSvg = `
-                    <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] drop-shadow-[0_10px_6px_rgba(0,0,0,0.45)]" xmlns="http://w3.org">
-                        <defs>
-                            <linearGradient id="gGold" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stop-color="#fffbeb"/><stop offset="50%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#b45309"/>
-                            </linearGradient>
-                        </defs>
-                        <path d="M42 75 Q52 46 50 15M56 75 Q46 48 48 15" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M50 15C42 10 40 2 50 4C60 2 58 10 50 15Z" fill="url(#gGold)"/>
-                        <path d="M40 30C32 25 34 14 44 19C48 23 46 32 40 30Z" fill="url(#gGold)"/>
-                        <path d="M60 30C68 25 66 14 56 19C52 23 54 32 60 30Z" fill="url(#gGold)"/>
-                        <path d="M38 48C30 43 32 32 42 37C46 41 44 50 38 48Z" fill="url(#gGold)"/>
-                        <path d="M62 48C70 43 68 32 58 37C54 41 56 50 62 48Z" fill="url(#gGold)"/>
+                    <svg viewBox="0 0 32 32" class="w-12 h-12" style="image-rendering: pixelated;">
+                        <path d="M16 28V8M13 14l3-3 3 3M13 19l3-3 3 3M13 24l3-3 3 3" stroke="#fcd34d" stroke-width="2" stroke-linecap="square"/>
+                        <circle cx="16" cy="6" r="2" fill="#fbbf24"/>
                     </svg>
                 `;
             } else {
                 graphicSvg = `
-                    <svg viewBox="0 0 100 100" class="w-[85%] h-[85%] drop-shadow-[0_10px_6px_rgba(0,0,0,0.45)]" xmlns="http://w3.org">
-                        <defs>
-                            <linearGradient id="gOrange" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#fed7aa"/><stop offset="40%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/>
-                            </linearGradient>
-                        </defs>
-                        <path d="M50 30 C38 10 62 4 50 30 Z M50 30 C30 12 36 0 50 30 Z M50 30 C70 12 64 0 50 30 Z" fill="#22c55e" stroke="#16a34a" stroke-width="1"/>
-                        <path d="M34 30 C34 22 66 22 66 30 C66 45 54 75 50 86 C46 75 34 45 34 30 Z" fill="url(#gOrange)"/>
-                        <path d="M40 42 Q50 45 58 41 M38 55 Q50 58 59 52 M43 68 Q50 70 54 67" stroke="#7c2d12" stroke-width="2.5" stroke-linecap="round"/>
+                    <svg viewBox="0 0 32 32" class="w-12 h-12" style="image-rendering: pixelated;">
+                        <rect x="14" y="6" width="4" height="4" fill="#22c55e"/>
+                        <path d="M12 10h8l-2 16h-4z" fill="#ea580c"/>
+                        <rect x="13" y="14" width="6" height="2" fill="#b45309"/>
                     </svg>
                 `;
             }
 
             content = `
-                <div class="w-full h-full flex flex-col items-center justify-center animate-bounce">
+                <div class="w-full h-full flex flex-col items-center justify-center relative">
                     ${graphicSvg}
-                    <span class="absolute bottom-1 bg-yellow-400 text-amber-950 font-black px-2 py-0.5 rounded-full border border-white text-[8px] uppercase tracking-wider shadow scale-90 whitespace-nowrap">THU HOẠCH</span>
+                    <span class="absolute bottom-1 bg-[#22c55e] border border-[#14532d] text-white text-[7px] font-black px-1 rounded uppercase tracking-wide">CLICK</span>
                 </div>
             `;
         }
 
-        // Đóng gói cấu hình nhúng lớp mặt bên (plot-side) tạo chiều dày lập thể chân thực
         grid.insertAdjacentHTML('beforeend', `
-            <div class="plot-container relative aspect-square">
-                <button onclick="handlePlotClick(${index}, '${plot.status}')" class="plot-3d w-full h-full rounded-2xl flex flex-col justify-center items-center transition-all duration-150 relative overflow-hidden ${style}">
-                    ${content}
-                    <div class="plot-side"></div>
-                </button>
-            </div>
+            <button onclick="handlePlotClick(${index}, '${plot.status}')" class="${style} aspect-square flex items-center justify-center overflow-hidden rounded-xl">
+                ${content}
+            </button>
         `);
     });
 }
