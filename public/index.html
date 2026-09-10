@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="google" content="notranslate">
-    <title>Farm TON Web3 - Premium Space Background</title>
+    <title>Farm TON Web3 Official UI</title>
     <script src="https://tailwindcss.com"></script>
     <script src="https://telegram.org"></script>
     <style>
@@ -15,145 +15,124 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* BACKGROUND 3 LỚP CAO CẤP: Không gian vũ trụ sâu thẳm phối màu Cyberpunk huyền ảo */
+        /* NỀN CỎ HOẠT HÌNH: Tone màu xanh tươi sáng chuẩn Farm TON gốc */
         body { 
             touch-action: manipulation; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(180deg, #020617 0%, #0f051d 40%, #1e0521 75%, #030712 100%);
-            position: relative;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(180deg, #7dd3fc 0%, #a7f3d0 35%, #4ade80 100%);
             overflow: hidden;
             width: 100vw;
             height: 100vh;
         }
 
-        /* LỚP 1: Lưới ma trận phát sáng neon ẩn hiện tạo chiều sâu công nghệ */
-        body::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
-            background-size: 24px 24px;
-            background-position: center top;
-            pointer-events: none;
-            z-index: 1;
+        /* KHÔNG GIAN CÁNH ĐỒNG NGHIÊNG ISOMETRIC HÌNH THOI CHUẨN GAME */
+        .farm-stage {
+            perspective: 1000px;
+        }
+        .farm-field-isometric {
+            transform: rotateX(35deg) rotateZ(-45deg);
+            transform-style: preserve-3d;
         }
 
-        /* LỚP 2: Quầng sáng Nebula (Mây tinh vân) phát sáng mềm ở trung tâm cánh đồng */
-        .nebula-glow {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(0, 198, 255, 0.12) 0%, rgba(168, 85, 247, 0.08) 50%, transparent 100%);
-            filter: blur(20px);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Hiệu ứng viền Neon dạ quang chuẩn TON Blockchain cho các ô đất */
-        .neon-border {
-            border: 2px solid #00c6ff;
-            box-shadow: 0 0 15px rgba(0, 198, 255, 0.3), inset 0 0 8px rgba(0, 198, 255, 0.15);
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(4px);
-        }
-        .neon-plot-ready {
-            border: 2px solid #10b981;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 8px rgba(16, 185, 129, 0.2);
-        }
-        .web3-btn {
-            background: linear-gradient(90deg, #0072ff 0%, #00c6ff 100%);
-            box-shadow: 0 4px 12px rgba(0, 198, 255, 0.25);
+        /* Ô ĐẤT DÀY LẬP THỂ PHONG CÁCH FARM TON */
+        .farm-ton-plot {
+            background: linear-gradient(135deg, #a0522d 0%, #5c3317 100%);
+            box-shadow: 0 8px 0 #3e2723, 0 15px 20px rgba(0,0,0,0.3);
+            border: 2px solid #bd7a4e;
+            transform-style: preserve-3d;
             transition: all 0.1s ease;
         }
-        .web3-btn:active {
-            transform: scale(0.96);
+        .farm-ton-plot:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #3e2723, 0 8px 10px rgba(0,0,0,0.3);
         }
 
-        /* Hiệu ứng hạt bụi sao bay lơ lửng */
-        @keyframes floatStars {
-            0% { transform: translateY(0px) translateX(0px) opacity: 0.2; }
-            50% { opacity: 0.7; }
-            100% { transform: translateY(-60px) translateX(10px) opacity: 0; }
+        /* THANH NAV BOTTOM GIẢ GỖ BO TRÒN VÀNG CAM */
+        .wood-nav-bar {
+            background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+            border: 3px solid #78350f;
+            box-shadow: inset 0 4px 0 rgba(255,255,255,0.4), 0 8px 16px rgba(0,0,0,0.3);
         }
-        .star-particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
-            animation: floatStars 6s infinite linear;
+        .wood-nav-item {
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+            border: 2px solid #92400e;
+            box-shadow: 0 4px 0 #78350f;
+            transition: all 0.05s ease;
+        }
+        .wood-nav-item:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #78350f;
+        }
+        .wood-nav-item.active {
+            background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%);
+            border-color: #7c2d12;
+            color: white;
         }
     </style>
 </head>
-<body class="h-screen w-full flex flex-col justify-between overflow-hidden text-slate-200">
+<body class="h-screen w-full flex flex-col justify-between overflow-hidden text-amber-950 font-black">
 
-    <!-- Sinh các hạt sao lấp lánh ngẫu nhiên ở nền -->
-    <div class="star-particle" style="top: 25%; left: 15%; animation-delay: 0s;"></div>
-    <div class="star-particle" style="top: 60%; left: 80%; animation-delay: 1.5s; width: 3px; height: 3px; background: #00c6ff;"></div>
-    <div class="star-particle" style="top: 75%; left: 20%; animation-delay: 3s;"></div>
-    <div class="star-particle" style="top: 35%; left: 85%; animation-delay: 4.5s; background: #a855f7;"></div>
-
-    <!-- Lớp mây tinh vân phát sáng -->
-    <div class="nebula-glow"></div>
-
-    <!-- Top Bar nội dung nổi trên nền z-50 -->
-    <div class="p-4 flex justify-between items-center bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 shadow-xl z-50 relative">
-        <div class="flex items-center gap-2.5">
-            <div id="avatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold shadow border border-cyan-400/40">💎</div>
+    <!-- TOP BAR: Tích hợp thông tin tài khoản và nút ví TON dạ quang -->
+    <div class="p-4 flex justify-between items-center bg-amber-900/10 backdrop-blur-sm border-b-2 border-amber-900/20 z-50">
+        <div class="flex items-center gap-2">
+            <!-- Avatar bo góc kiểu game -->
+            <div id="avatar" class="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-400 to-orange-500 text-white flex items-center justify-center font-bold text-xl shadow border-2 border-white">👨‍🌾</div>
             <div class="flex flex-col">
-                <span id="username" class="font-black text-sm text-white tracking-wide uppercase drop-shadow-md">Đang tải...</span>
-                <span class="text-[9px] text-cyan-400 font-black tracking-widest mt-0.5">TON BLOCKCHAIN FANS</span>
+                <span id="username" class="font-black text-xs text-amber-950 uppercase tracking-tight drop-shadow-sm">Đang tải...</span>
+                <span class="text-[8px] bg-amber-800 text-amber-100 font-extrabold px-1.5 py-0.5 rounded-full mt-0.5 self-start shadow-inner">FARMER v1.0</span>
             </div>
         </div>
         
-        <button onclick="toggleWallet()" id="btn-wallet" class="web3-btn text-slate-950 font-black text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/30">
-            <span>🌐</span> <span id="wallet-text">CONNECT WALLET</span>
+        <!-- Nút Connect Wallet chuẩn chỉ mạng TON -->
+        <button onclick="toggleWallet()" id="btn-wallet" class="bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white text-[9px] font-black px-3 py-2 rounded-xl flex items-center gap-1.5 border-b-4 border-blue-800 shadow-md active:translate-y-0.5 active:border-b-2 transition-all">
+            <span>💎</span> <span id="wallet-text">CONNECT TON</span>
         </button>
     </div>
 
-    <!-- Màn hình chính cánh đồng -->
-    <div class="flex-1 w-full p-4 flex flex-col items-center justify-center overflow-hidden relative z-10">
+    <!-- KHU VỰC CÁNH ĐỒNG: Gồm nhà kho gỗ đỏ bên trái và 6 ô ruộng nghiêng ở giữa -->
+    <div class="flex-1 w-full p-4 flex flex-col items-center justify-center farm-stage relative">
         
-        <!-- Bảng GOLD pha lê mờ -->
-        <div class="mb-6 bg-slate-950/90 border border-slate-800 rounded-2xl px-6 py-2 flex items-center gap-2 shadow-2xl backdrop-blur-sm">
-            <span class="text-xl">🪙</span>
-            <span id="balance" class="text-3xl font-black text-yellow-400 tracking-tight font-mono drop-shadow-[0_2px_4px_rgba(250,204,21,0.2)]">0</span>
-            <span class="text-[10px] text-yellow-300 font-black bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/20">$GOLD</span>
+        <!-- Nhà kho gỗ đỏ đặc trưng góc trên bên trái cánh đồng -->
+        <div class="absolute top-4 left-6 bg-gradient-to-b from-red-500 to-red-700 border-4 border-amber-950 p-2.5 rounded-2xl shadow-xl flex flex-col items-center gap-0.5 z-10 min-w-[70px]">
+            <span class="text-2xl drop-shadow">🏡</span>
+            <span class="text-[8px] text-white tracking-tighter bg-red-950/40 px-1.5 py-0.5 rounded-md">BARN</span>
         </div>
 
-        <!-- Khung lưới ruộng 6 ô công nghệ -->
-        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-3xl w-full max-w-[290px] sm:max-w-[310px] shadow-2xl backdrop-blur-sm">
+        <!-- Bảng hiển thị token $GOLD thu hoạch -->
+        <div class="mb-4 bg-gradient-to-b from-amber-50 to-orange-100 border-2 border-amber-900/60 rounded-2xl px-6 py-1.5 flex items-center gap-1.5 shadow-md z-10">
+            <span class="text-lg">🪙</span>
+            <span id="balance" class="text-2xl font-black text-amber-900 tracking-tight font-mono">0</span>
+            <span class="text-[8px] text-white font-black bg-amber-700 px-1.5 py-0.5 rounded border border-amber-800 shadow-inner">$GOLD</span>
+        </div>
+
+        <!-- Cánh đồng nghiêng hình thoi chứa 6 ô ruộng lưới 2x3 -->
+        <div class="w-full max-w-[240px] sm:max-w-[260px] farm-field-isometric p-2">
             <div class="grid grid-cols-2 gap-4 w-full" id="grid-container">
-                <!-- Tự sinh ô lưới từ app.js -->
+                <!-- 6 ô ruộng lập thể sẽ tự sinh từ app.js -->
             </div>
         </div>
     </div>
 
-    <!-- Bottom Menu Bảng điều khiển mua hạt giống -->
-    <div class="p-4 bg-slate-950/90 border-t border-slate-800/80 shadow-2xl rounded-t-[2rem] z-50 pb-8 w-full max-w-md mx-auto relative">
-        <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto mb-3.5"></div>
-        <p class="text-[10px] font-black text-slate-300 mb-3.5 tracking-widest uppercase text-center drop-shadow">🛒 HỆ THỐNG MUA HẠT GIỐNG WEB3 🛒</p>
-        <div class="flex gap-3 px-1">
-            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-3 rounded-xl bg-gradient-to-b from-cyan-600 to-blue-700 border border-cyan-400/30 text-white font-black text-xs flex flex-col items-center justify-center web3-btn">
-                <span class="text-xl">🌾</span>
-                <span class="mt-1 font-mono text-[10px] text-white">WHEAT (10 🪙)</span>
+    <!-- BOTTOM NAV BAR: Thiết kế 4 tab gỗ dày dặn y hệt Farm TON gốc -->
+    <div class="p-3 mx-4 mb-6 rounded-2xl wood-nav-bar text-amber-950 z-50 w-full max-w-sm mx-auto">
+        <div class="flex gap-2 justify-between items-center">
+            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item active">
+                <span class="text-lg">FARM</span>
             </button>
-            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-3 rounded-xl bg-slate-900 border border-slate-800/80 text-slate-400 text-xs flex flex-col items-center justify-center shadow-inner">
-                <span class="text-xl opacity-40">🥕</span>
-                <span class="mt-1 font-mono text-[10px] text-slate-400">CARROT (30 🪙)</span>
+            <button class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item text-amber-900/60 opacity-90">
+                <span>UPGRADE</span>
+            </button>
+            <button class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item text-amber-900/60 opacity-90">
+                <span>BOOST</span>
+            </button>
+            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item">
+                <span>SHOP</span>
             </button>
         </div>
     </div>
 
-    <!-- Thông báo Toast -->
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 bg-cyan-400 text-slate-950 font-black text-[10px] px-4 py-2 rounded-full opacity-0 pointer-events-none transition-opacity duration-300 shadow-xl z-50 uppercase border border-cyan-200"></div>
+    <!-- Thông báo nổi hệ thống -->
+    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 bg-amber-900 text-amber-50 font-black text-[9px] px-4 py-2 rounded-xl opacity-0 pointer-events-none transition-opacity duration-300 shadow-xl z-50 uppercase border border-amber-700 tracking-wider"></div>
 
     <script src="app.js"></script>
 </body>
