@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="google" content="notranslate">
-    <title>Hay Farm 3D Mini App</title>
-    <!-- Thư viện CSS Tailwind ổn định -->
+    <title>Hay Farm 3D - Tối Ưu Màn Hình</title>
+    <!-- Tailwind CSS bản ổn định cao -->
     <script src="https://tailwindcss.com"></script>
     <script src="https://telegram.org"></script>
     <style>
-        /* Khóa cứng font hệ thống và chặn lỗi zoom/chọn text bừa bãi khi click nhanh */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -18,60 +17,74 @@
         }
         body { 
             touch-action: manipulation; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        /* Ép góc nghiêng 3D Isometric chuẩn không bị vỡ bố cục */
-        .perspective-container {
-            perspective: 800px;
-            -webkit-perspective: 800px;
+        /* Góc nghiêng 3D Isometric chuẩn tỷ lệ vàng, không bị xoắn hình */
+        .perspective-field {
+            perspective: 1000px;
+            -webkit-perspective: 1000px;
         }
-        .grid-3d {
-            transform: rotateX(25deg) rotateZ(-12deg);
+        .farm-grid-3d {
+            transform: rotateX(28deg) rotateZ(-15deg);
             transform-style: preserve-3d;
             -webkit-transform-style: preserve-3d;
+            transition: transform 0.3s ease;
         }
-        /* Đảm bảo hình ảnh SVG co giãn đều theo ô đất */
-        svg {
-            display: block;
+        /* Giữ các khối hình học SVG co giãn chuẩn trong ô vuông */
+        .svg-icon-container {
             width: 100%;
             height: 100%;
-            max-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        svg {
+            width: 85%;
+            height: 85%;
+            max-width: 65px;
+            max-height: 65px;
         }
     </style>
 </head>
-<body class="bg-gradient-to-b from-sky-200 via-green-100 to-emerald-200 text-slate-800 h-screen flex flex-col overflow-hidden w-full">
+<body class="bg-gradient-to-b from-sky-300 via-green-100 to-emerald-200 text-slate-800 h-screen flex flex-col overflow-hidden w-full">
 
-    <!-- Thanh trạng thái trên -->
-    <div class="p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-white/50 shadow-md z-50">
+    <!-- Thanh thông tin tài khoản -->
+    <div class="p-4 flex justify-between items-center bg-white/75 backdrop-blur-md border-b border-white/40 shadow-md z-50">
         <div class="flex items-center gap-2">
-            <div id="avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center font-bold text-base shadow-sm border border-white">🤠</div>
-            <span id="username" class="font-extrabold text-sm text-emerald-900 drop-shadow-sm">Đang tải...</span>
+            <div id="avatar" class="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white flex items-center justify-center font-bold text-lg shadow border border-white">👨‍🌾</div>
+            <div class="flex flex-col">
+                <span id="username" class="font-black text-xs text-emerald-950 leading-tight">Đang tải...</span>
+                <span class="text-[9px] text-emerald-700/80 font-bold tracking-wide">CHỦ TRANG TRẠI</span>
+            </div>
         </div>
-        <div class="bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black px-4 py-1 rounded-full text-xs shadow flex items-center gap-1 border border-white">
+        <div class="bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black px-4 py-1.5 rounded-full text-xs shadow-md border border-white flex items-center gap-1">
             🪙 <span id="balance">0</span>
         </div>
     </div>
 
-    <!-- Cánh đồng nông trại 3D cố định tâm màn hình -->
-    <div class="flex-1 w-full p-4 flex items-center justify-center perspective-container overflow-hidden">
-        <div class="grid grid-cols-2 gap-x-6 gap-y-4 w-full max-w-[280px] grid-3d" id="grid-container">
-            <!-- Ô đất trồng tự sinh từ app.js -->
+    <!-- Cánh đồng nông trại 3D tự động co giãn theo khung hình điện thoại -->
+    <div class="flex-1 w-full p-6 flex items-center justify-center perspective-field overflow-hidden">
+        <div class="grid grid-cols-2 gap-x-6 gap-y-5 w-full max-w-[280px] sm:max-w-[320px] farm-grid-3d" id="grid-container">
+            <!-- Các ô đất sẽ được kết xuất chính xác từ file app.js -->
         </div>
     </div>
 
-    <!-- Thanh điều khiển chọn hạt giống dưới đáy -->
-    <div class="p-4 bg-white/95 border-t-4 border-emerald-400 shadow-2xl rounded-t-3xl z-50 pb-6 w-full">
-        <p class="text-[11px] font-black text-emerald-800 mb-3 tracking-wider uppercase text-center">🌾 BẤM CHỌN HẠT GIỐNG ĐỂ GIEO HẠT 🥕</p>
-        <div class="flex gap-3 max-w-sm mx-auto">
-            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-2.5 rounded-xl border-b-4 border-amber-600 bg-gradient-to-b from-amber-300 to-amber-500 text-amber-950 font-black text-xs transition-all duration-75 active:translate-y-1 active:border-b-0 flex flex-col items-center justify-center shadow">
-                <span class="text-lg">🌾</span> Lúa mì (10 🪙)
+    <!-- Hộp điều khiển hạt giống bo tròn kiểu app hiện đại -->
+    <div class="p-4 bg-white/95 border-t-4 border-emerald-400 shadow-2xl rounded-t-[2.5rem] z-50 pb-8 w-full max-w-md mx-auto">
+        <div class="w-12 h-1 bg-slate-300 rounded-full mx-auto mb-3 opacity-60"></div>
+        <p class="text-[10px] font-black text-emerald-800 mb-3.5 tracking-widest uppercase text-center">🌾 CLICK HẠT GIỐNG ĐỂ TIẾN HÀNH GIEO TRỒNG 🥕</p>
+        <div class="flex gap-4 px-2">
+            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-3 rounded-2xl border-b-4 border-amber-600 bg-gradient-to-b from-amber-300 to-amber-500 text-amber-950 font-black text-xs transition-all duration-75 active:translate-y-1 active:border-b-0 flex flex-col items-center justify-center shadow-md">
+                <span class="text-xl mb-0.5">🌾</span> Lúa mì (10 🪙)
             </button>
-            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-2.5 rounded-xl border-b-4 border-transparent bg-slate-200 text-slate-700 font-black text-xs transition-all duration-75 active:translate-y-1 flex flex-col items-center justify-center shadow-inner">
-                <span class="text-lg opacity-60">🥕</span> Cà rốt (30 🪙)
+            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-3 rounded-2xl border-b-4 border-transparent bg-slate-200 text-slate-700 font-black text-xs transition-all duration-75 active:translate-y-1 flex flex-col items-center justify-center shadow-inner">
+                <span class="text-xl mb-0.5 opacity-60">🥕</span> Cà rốt (30 🪙)
             </button>
         </div>
     </div>
 
     <script src="app.js"></script>
 </body>
+</html>
+
 </html>
