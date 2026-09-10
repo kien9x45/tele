@@ -10,34 +10,33 @@ let localUserData = null;
 let isWalletConnected = false;
 
 function selectCrop(type) {
-    currentSelectedCrop = type;
     const btnWheat = document.getElementById('btn-wheat');
     const btnCarrot = document.getElementById('btn-carrot');
+    currentSelectedCrop = type;
     
     if (type === 'wheat') {
         btnWheat.className = "flex-1 py-3 rounded-xl bg-gradient-to-b from-cyan-600 to-blue-700 border border-cyan-400/40 text-white font-black text-xs flex flex-col items-center justify-center web3-btn";
-        btnCarrot.className = "flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 text-xs flex flex-col items-center justify-center shadow-inner";
+        btnCarrot.className = "flex-1 py-3 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 text-xs flex flex-col items-center justify-center shadow-inner";
     } else {
-        btnWheat.className = "flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 text-xs flex flex-col items-center justify-center shadow-inner";
+        btnWheat.className = "flex-1 py-3 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 text-xs flex flex-col items-center justify-center shadow-inner";
         btnCarrot.className = "flex-1 py-3 rounded-xl bg-gradient-to-b from-cyan-600 to-blue-700 border border-cyan-400/40 text-white font-black text-xs flex flex-col items-center justify-center web3-btn";
     }
 }
 
-// Bổ sung hàm bật tắt kết nối ví TON giả lập
 function toggleWallet() {
     const text = document.getElementById('wallet-text');
     const btn = document.getElementById('btn-wallet');
     
     if (!isWalletConnected) {
         isWalletConnected = true;
-        text.innerText = "UQ...8x9F"; // Địa chỉ ví TON giả định
+        text.innerText = "UQ...8x9F";
         btn.className = "text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-400 bg-gradient-to-r from-emerald-600 to-teal-700 shadow-lg shadow-emerald-500/20";
         showToast("KẾT NỐI VÍ TON THÀNH CÔNG!");
         if (tg) tg.HapticFeedback.notificationOccurred('success');
     } else {
         isWalletConnected = false;
         text.innerText = "CONNECT WALLET";
-        btn.className = "web3-btn text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/20";
+        btn.className = "web3-btn text-slate-950 font-black text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/40";
         showToast("ĐÃ NGẮT KẾT NỐI VÍ.");
         if (tg) tg.HapticFeedback.impactOccurred('light');
     }
@@ -101,51 +100,52 @@ function renderFarm() {
     grid.innerHTML = '';
 
     localUserData.plots.forEach((plot, index) => {
-        let style = "neon-border bg-slate-900/60";
+        let style = "neon-border bg-slate-900/40";
         let content = "";
         const now = Date.now();
 
-        // 1. Ô ĐẤT TRỐNG WEB3 (Ma trận mạch điện tử rỗng)
         if (plot.status === 'empty') {
             content = `
-                <svg viewBox="0 0 40 40" class="w-10 h-10 opacity-30">
+                <svg viewBox="0 0 40 40" class="w-10 h-10 opacity-20">
                     <rect x="5" y="5" width="30" height="30" rx="4" fill="none" stroke="#00c6ff" stroke-width="1.5" stroke-dasharray="4"/>
-                    <circle cx="20" cy="20" r="3" fill="#00c6ff"/>
+                    <circle cx="20" cy="20" r="2" fill="#00c6ff"/>
                 </svg>
             `;
         } 
-        // 2. CÂY ĐANG LỚN (Mạch lõi hạt nhân nhấp nháy phát sáng)
+        // ĐANG LỚN: Hộp đen tuyền, chữ Đếm ngược màu Trắng Neon cực rõ
         else if (plot.status === 'growing' && now < plot.readyAt) {
-            style = "neon-border bg-cyan-950/20 border-cyan-500/50";
+            style = "neon-border bg-slate-950 border-cyan-500/40";
             const secondsLeft = Math.ceil((plot.readyAt - now) / 1000);
             content = `
                 <div class="w-full h-full flex flex-col items-center justify-center relative p-1">
-                    <svg viewBox="0 0 40 40" class="w-9 h-9 animate-pulse">
-                        <circle cx="20" cy="20" r="10" fill="none" stroke="#00c6ff" stroke-width="2"/>
-                        <path d="M20 10v20M10 20h20" stroke="#00c6ff" stroke-width="1.5"/>
+                    <svg viewBox="0 0 40 40" class="w-8 h-8 animate-pulse text-cyan-400">
+                        <circle cx="20" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M20 11v9h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
-                    <div class="absolute bottom-1 bg-cyan-500 text-slate-950 font-mono text-[7px] font-black px-1.5 py-0.5 rounded whitespace-nowrap scale-90">
+                    <div class="absolute bottom-1.5 bg-cyan-950 text-white font-mono text-[9px] font-black px-2 py-0.5 rounded border border-cyan-500/30 whitespace-nowrap tracking-wide">
                         ${secondsLeft}S
                     </div>
                 </div>
             `;
         } 
-        // 3. NÔNG SẢN ĐÃ CHÍN (Biểu tượng Token vàng phát sáng chói lọi + Bounce nhảy khối)
+        // CHÍN: Nút Thu hoạch xanh lục bảo chữ Đen đậm tương phản tối đa
         else if (plot.status === 'ready' || (plot.status === 'growing' && now >= plot.readyAt)) {
-            style = "neon-plot-ready bg-emerald-950/40 border-emerald-400 animate-bounce";
+            style = "neon-plot-ready bg-gradient-to-b from-emerald-400 to-teal-500 animate-bounce";
             plot.status = 'ready'; 
 
             let icon = plot.cropType === 'wheat' ? '🌾' : '🥕';
             content = `
                 <div class="w-full h-full flex flex-col items-center justify-center relative">
-                    <span class="text-2xl drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">${icon}</span>
-                    <span class="absolute bottom-1 bg-emerald-500 text-slate-950 text-[7px] font-black px-1.5 py-0.5 rounded shadow-md uppercase tracking-wider scale-90">CLAIM</span>
+                    <span class="text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">${icon}</span>
+                    <span class="absolute bottom-1.5 bg-slate-950 text-emerald-400 border border-emerald-400/40 text-[8px] font-black px-2 py-0.5 rounded shadow uppercase tracking-wider scale-95 whitespace-nowrap">
+                        CLAIM
+                    </span>
                 </div>
             `;
         }
 
         grid.insertAdjacentHTML('beforeend', `
-            <button onclick="handlePlotClick(${index}, '${plot.status}')" class="${style} aspect-square flex items-center justify-center overflow-hidden rounded-2xl border transition-all duration-75 active:scale-95">
+            <button onclick="handlePlotClick(${index}, '${plot.status}')" class="${style} aspect-square flex items-center justify-center overflow-hidden rounded-2xl border transition-all duration-75 active:scale-95 shadow-lg">
                 ${content}
             </button>
         `);
