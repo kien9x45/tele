@@ -36,7 +36,8 @@ async function fetchUserData() {
 
 async function handlePlotClick(index, currentStatus) {
     let endpoint = "";
-    let payload = { userId, plotIndex: index };
+    // GỬI KÈM CẢ USERNAME: Để server tự động phục hồi tài khoản nếu có lỗi xảy ra
+    let payload = { userId, username, plotIndex: index };
 
     if (currentStatus === 'empty') {
         endpoint = "/api/plant";
@@ -55,12 +56,16 @@ async function handlePlotClick(index, currentStatus) {
             body: JSON.stringify(payload)
         });
         const resData = await response.json();
-        if (resData.error) return alert("Lỗi: " + resData.error);
+        
+        if (resData.error) {
+            alert("Lỗi: " + resData.error);
+            return;
+        }
         
         localUserData = resData.user;
         renderFarm();
         if (tg) tg.HapticFeedback.impactOccurred('medium');
-    } catch (e) { console.error("Lỗi truyền tin nhấp chuột", e); }
+    } catch (e) { console.error("Lỗi kết nối", e); }
 }
 
 function renderFarm() {
@@ -96,7 +101,7 @@ function renderFarm() {
                         <rect x="12" y="14" width="4" height="3" fill="#8bc34a"/>
                         <rect x="16" y="12" width="5" height="3" fill="#8bc34a"/>
                     </svg>
-                    <div class="absolute bottom-1 bg-[#1a0e06] border border-[#3a2212] text-green-400 font-mono text-[7px] px-1 py-0.5 rounded scale-90 whitespace-nowrap">
+                    <div class="absolute bottom-1 bg-[#1a0e06] border border-[#3a2212] text-green-400 font-mono text-[7px] px-1 py-0.5 rounded scale-90">
                         ${secondsLeft}s
                     </div>
                 </div>
@@ -132,7 +137,6 @@ function renderFarm() {
             `;
         }
 
-        // Bổ sung thuộc tính ép cứng tỷ lệ ô đất vuông vức (aspect-square)
         grid.insertAdjacentHTML('beforeend', `
             <button onclick="handlePlotClick(${index}, '${plot.status}')" class="${style} aspect-square flex items-center justify-center overflow-hidden rounded-xl">
                 ${content}
@@ -157,4 +161,3 @@ setInterval(() => {
 }, 1000);
 
 fetchUserData();
-
