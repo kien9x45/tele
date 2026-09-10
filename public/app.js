@@ -1,10 +1,12 @@
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-const userId = tg?.initDataUnsafe?.user?.id || 12345; 
+// Lấy thông tin tài khoản Telegram thật, ép kiểu chuỗi chuẩn mã hóa Server
+const userId = String(tg?.initDataUnsafe?.user?.id || "12345"); 
 const username = tg?.initDataUnsafe?.user?.first_name || "Nông dân Mates";
 
-const SERVER_URL = ""; 
+// Sử dụng đường dẫn tương đối để Client tự nhận diện cổng chạy song song của Server
+const SERVER_URL = window.location.origin; 
 
 let currentSelectedCrop = 'wheat';
 let localUserData = null;
@@ -23,6 +25,7 @@ function selectCrop(type) {
     }
 }
 
+// API Khởi tạo/Đồng bộ tài khoản bắt buộc
 async function fetchUserData() {
     try {
         const response = await fetch(`${SERVER_URL}/api/user-data`, {
@@ -32,7 +35,9 @@ async function fetchUserData() {
         });
         localUserData = await response.json();
         renderFarm();
-    } catch (e) { console.error("Lỗi đồng bộ dữ liệu Farmingmates", e); }
+    } catch (e) { 
+        console.error("Lỗi đồng bộ dữ liệu với máy chủ", e); 
+    }
 }
 
 async function handlePlotClick(index, currentStatus) {
@@ -56,12 +61,19 @@ async function handlePlotClick(index, currentStatus) {
             body: JSON.stringify(payload)
         });
         const resData = await response.json();
-        if (resData.error) return alert(resData.error);
+        
+        // Bắt lỗi hệ thống hiển thị trực quan
+        if (resData.error) {
+            alert("Lỗi: " + resData.error);
+            return;
+        }
         
         localUserData = resData.user;
         renderFarm();
         if (tg) tg.HapticFeedback.impactOccurred('medium');
-    } catch (e) { console.error("Lỗi kết nối API", e); }
+    } catch (e) { 
+        console.error("Lỗi gửi dữ liệu hành động click", e); 
+    }
 }
 
 function renderFarm() {
@@ -78,7 +90,6 @@ function renderFarm() {
         let content = "";
         const now = Date.now();
 
-        // 1. ĐẤT TƠI XỐP PHẲNG (Pixel Art màu đất tối)
         if (plot.status === 'empty') {
             content = `
                 <svg viewBox="0 0 32 32" class="w-12 h-12" style="image-rendering: pixelated;">
@@ -89,7 +100,6 @@ function renderFarm() {
                 </svg>
             `;
         } 
-        // 2. MẦM CÂY ĐANG LÊN (Pixel mầm xanh 8-bit sắc nét + Giây đếm ngược bảng đen)
         else if (plot.status === 'growing' && now < plot.readyAt) {
             const secondsLeft = Math.ceil((plot.readyAt - now) / 1000);
             content = `
@@ -105,7 +115,6 @@ function renderFarm() {
                 </div>
             `;
         } 
-        // 3. NÔNG SẢN CHÍN PHONG CÁCH RETRO (Lúa mì hạt lớn/Cà rốt khối)
         else if (plot.status === 'ready' || (plot.status === 'growing' && now >= plot.readyAt)) {
             style = "pixel-plot bg-[#60a5fa]/20 border-emerald-500 animate-pulse";
             plot.status = 'ready'; 
@@ -159,4 +168,5 @@ setInterval(() => {
     if (needReRender) renderFarm();
 }, 1000);
 
+// Khởi chạy đồng bộ dữ liệu ngay lập tức
 fetchUserData();
