@@ -10,37 +10,33 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ----------------------------------------------------
-// CẤU HÌNH BOT TELEGRAM
+// TELEGRAM BOT CONFIG (Dán Token của bạn vào đây)
 // ----------------------------------------------------
-const BOT_TOKEN = "7832658924:AAFlkX..."; // Giữ nguyên mã Token của bạn tại đây
+const BOT_TOKEN = "7832658924:AAFlkX..."; 
 const bot = new Bot(BOT_TOKEN);
 const WEB_APP_URL = "https://onrender.com"; 
 
 bot.command("start", async (ctx) => {
     const username = ctx.from.first_name || "Nông dân";
-    const keyboard = new InlineKeyboard().webApp("⛏️ Vào Nông Trại Trồng Trọt", WEB_APP_URL);
+    const keyboard = new InlineKeyboard().webApp("👨‍🌾 Vào Nông Trại FarmerTON", WEB_APP_URL);
     await ctx.reply(
-        `👋 Xin chào ${username} đã đến với *Farm TON Clone*!\n\n` +
-        `🌾 Hãy chăm sóc 6 ô đất của bạn, thu hoạch nông sản để tích lũy xu vàng nhé!`,
+        `👋 Xin chào ${username} đã đến với *FarmerTON Clone*!\n\n` +
+        `🌾 Hãy gieo hạt, nâng cấp ô đất và tích lũy $GOLD để sẵn sàng Airdrop nhé.`,
         { parse_mode: "Markdown", reply_markup: keyboard }
     );
 });
-bot.start().catch(err => console.error("Lỗi khởi động Bot:", err));
+bot.start().catch(err => console.error("Lỗi Bot:", err));
 
 // ----------------------------------------------------
-// DATABASE LƯU TRỮ CỤC BỘ
+// DATABASE FILE SYSTEM
 // ----------------------------------------------------
 const DB_FILE = path.join(__dirname, 'database.json');
 let usersDatabase = {};
 
 if (fs.existsSync(DB_FILE)) {
-    try {
-        usersDatabase = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-    } catch (e) {
-        usersDatabase = {};
-    }
+    try { usersDatabase = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } 
+    catch (e) { usersDatabase = {}; }
 }
-
 function saveDatabase() {
     fs.writeFileSync(DB_FILE, JSON.stringify(usersDatabase, null, 2), 'utf8');
 }
@@ -55,7 +51,7 @@ function getOrCreateUser(userId, username) {
     if (!usersDatabase[sId]) {
         usersDatabase[sId] = {
             id: sId,
-            username: username || "Nông dân Mates",
+            username: username || "Farmer",
             balance: 100, 
             plots: Array(6).fill(null).map(() => ({ status: 'empty', cropType: null, readyAt: null }))
         };
@@ -68,15 +64,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API 1: Đồng bộ dữ liệu người dùng
 app.post('/api/user-data', (req, res) => {
     const { userId, username } = req.body;
-    if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
+    if (!userId) return res.status(400).json({ error: "Thiếu UserId!" });
     
     const user = getOrCreateUser(userId, username);
     const now = Date.now();
     
-    // Tích hợp dung sai thời gian mạng khi kiểm tra trạng thái tự động
     user.plots.forEach(plot => {
         if (plot.status === 'growing' && (now + 1500) >= plot.readyAt) {
             plot.status = 'ready';
@@ -85,17 +79,14 @@ app.post('/api/user-data', (req, res) => {
     res.json(user);
 });
 
-// API 2: Trồng hạt giống
 app.post('/api/plant', (req, res) => {
     const { userId, username, plotIndex, cropType } = req.body;
-    if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
-
     const user = getOrCreateUser(userId, username);
     const crop = CROPS_CONFIG[cropType];
     const plot = user.plots[plotIndex];
 
     if (!crop || !plot || plot.status !== 'empty' || user.balance < crop.cost) {
-        return res.status(400).json({ error: "Hành động hoặc số dư không hợp lệ!" });
+        return res.status(400).json({ error: "Hành động hoặc số dư không đủ xu!" });
     }
 
     user.balance -= crop.cost;
@@ -107,23 +98,19 @@ app.post('/api/plant', (req, res) => {
     res.json({ success: true, user });
 });
 
-// API 3: Thu hoạch nông sản (BẢN VÁ LỖI LỆCH GIÂY TUYỆT ĐỐI)
 app.post('/api/harvest', (req, res) => {
     const { userId, username, plotIndex } = req.body;
-    if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
-
     const user = getOrCreateUser(userId, username);
     const plot = user.plots[plotIndex];
     const now = Date.now();
 
-    // VÁ LỖI: Cộng thêm 1500ms (1.5 giây) dung sai trễ mạng. 
-    // Nếu sai số thời gian nằm trong khoảng này, Server vẫn công nhận cây đã chín.
+    // Bù 1.5 giây dung sai mạng chống lỗi nông sản chưa chín
     if (plot.status === 'growing' && (now + 1500) >= plot.readyAt) {
         plot.status = 'ready';
     }
 
     if (plot.status !== 'ready') {
-        return res.status(400).json({ error: "Nông sản chưa chín hoàn toàn!" });
+        return res.status(400).json({ error: "Nông sản chưa chín!" });
     }
 
     const crop = CROPS_CONFIG[plot.cropType];
@@ -138,4 +125,4 @@ app.post('/api/harvest', (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 Hệ thống hoạt động mượt mà tại cổng ${port}`));
+app.listen(port, () => console.log(`🚀 Server FarmerTON chạy tại cổng ${port}`));
