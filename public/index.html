@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="google" content="notranslate">
     <title>Farm TON Web3 Clone</title>
-    <!-- Tailwind CSS và Font chữ hiện đại -->
     <script src="https://tailwindcss.com"></script>
     <script src="https://telegram.org"></script>
     <style>
@@ -18,9 +17,8 @@
         body { 
             touch-action: manipulation; 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            background: linear-gradient(180deg, #090d16 0%, #111026 50%, #1f0b2a 100%);
         }
-        /* Hiệu ứng viền Neon dạ quang chuẩn TON Blockchain */
         .neon-border {
             border: 2px solid #00c6ff;
             box-shadow: 0 0 15px rgba(0, 198, 255, 0.4), inset 0 0 10px rgba(0, 198, 255, 0.2);
@@ -29,7 +27,6 @@
             border: 2px solid #10b981;
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
         }
-        /* Nút bấm giả lập ví Web3 */
         .web3-btn {
             background: linear-gradient(90deg, #0072ff 0%, #00c6ff 100%);
             box-shadow: 0 4px 10px rgba(0, 198, 255, 0.3);
@@ -41,60 +38,58 @@
         }
     </style>
 </head>
-<body class="h-screen w-full flex flex-col overflow-hidden text-slate-200">
+<body class="h-screen w-full flex flex-col overflow-hidden text-slate-100">
 
-    <!-- Top Bar: Thông tin User & Nút Ví TON Connect Giả Lập -->
-    <div class="p-4 flex justify-between items-center bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-xl z-50">
+    <!-- Top Bar: Chữ tên User màu trắng, nhãn phụ màu xám sáng -->
+    <div class="p-4 flex justify-between items-center bg-slate-950 border-b border-slate-800 shadow-xl z-50">
         <div class="flex items-center gap-2.5">
             <div id="avatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold shadow border border-cyan-400">💎</div>
             <div class="flex flex-col">
-                <span id="username" class="font-black text-xs text-cyan-400 tracking-wide uppercase">Đang tải...</span>
-                <span class="text-[8px] text-slate-400 font-bold tracking-widest mt-0.5">TON FARMER</span>
+                <span id="username" class="font-black text-sm text-white tracking-wide uppercase drop-shadow">Đang tải...</span>
+                <span class="text-[9px] text-cyan-400 font-black tracking-widest mt-0.5">TON FARMER</span>
             </div>
         </div>
         
-        <!-- Giả lập TON Wallet -->
-        <button onclick="toggleWallet()" id="btn-wallet" class="web3-btn text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/20">
+        <button onclick="toggleWallet()" id="btn-wallet" class="web3-btn text-slate-950 font-black text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/40">
             <span>🌐</span> <span id="wallet-text">CONNECT WALLET</span>
         </button>
     </div>
 
-    <!-- Màn hình chính: Hiển thị Vàng & Bảng Lưới Nông Trại Nghiêng 3D Nhẹ -->
+    <!-- Main Screen -->
     <div class="flex-1 w-full p-4 flex flex-col items-center justify-center overflow-hidden">
         
-        <!-- Bảng hiển thị số dư vàng Token lớn ở trung tâm -->
-        <div class="mb-6 bg-slate-900/60 border border-slate-800 rounded-2xl px-6 py-2.5 flex items-center gap-2 backdrop-blur shadow-lg">
+        <!-- Bảng hiển thị GOLD chữ to rõ ràng -->
+        <div class="mb-6 bg-slate-950 border-2 border-slate-800 rounded-2xl px-6 py-2.5 flex items-center gap-2 shadow-2xl">
             <span class="text-xl">🪙</span>
-            <span id="balance" class="text-2xl font-black text-amber-400 tracking-tight font-mono">0</span>
-            <span class="text-[9px] text-amber-500/80 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">$GOLD</span>
+            <span id="balance" class="text-3xl font-black text-yellow-400 tracking-tight font-mono drop-shadow">0</span>
+            <span class="text-[10px] text-yellow-400 font-black bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/30">$GOLD</span>
         </div>
 
-        <!-- Khung ruộng đất chứa 6 ô lưới hình học phẳng -->
-        <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-3xl w-full max-w-[290px] sm:max-w-[310px] shadow-2xl shadow-cyan-950/20">
+        <!-- Cánh đồng ruộng -->
+        <div class="bg-slate-950 border border-slate-800 p-4 rounded-3xl w-full max-w-[290px] sm:max-w-[310px] shadow-2xl">
             <div class="grid grid-cols-2 gap-4 w-full" id="grid-container">
-                <!-- 6 ô ruộng Cyberpunk tự động sinh từ app.js -->
+                <!-- 6 ô ruộng tự sinh -->
             </div>
         </div>
     </div>
 
-    <!-- Bottom Menu: Khu vực lựa chọn Token Hạt giống để mua -->
-    <div class="p-4 bg-slate-900/90 border-t border-slate-800 shadow-2xl rounded-t-[2rem] z-50 pb-8 w-full max-w-md mx-auto">
-        <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3.5 opacity-50"></div>
-        <p class="text-[9px] font-black text-cyan-400 mb-3.5 tracking-widest uppercase text-center">🛒 HỆ THỐNG MUA HẠT GIỐNG WEB3 🛒</p>
+    <!-- Bottom Menu: Chữ tiêu đề màu trắng kem tương phản tốt -->
+    <div class="p-4 bg-slate-950 border-t-2 border-slate-800 shadow-2xl rounded-t-[2rem] z-50 pb-8 w-full max-w-md mx-auto">
+        <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto mb-3.5"></div>
+        <p class="text-[10px] font-black text-amber-100 mb-3.5 tracking-widest uppercase text-center drop-shadow">🛒 HỆ THỐNG MUA HẠT GIỐNG WEB3 🛒</p>
         <div class="flex gap-3 px-1">
             <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-3 rounded-xl bg-gradient-to-b from-cyan-600 to-blue-700 border border-cyan-400/40 text-white font-black text-xs flex flex-col items-center justify-center web3-btn">
                 <span class="text-xl">🌾</span>
-                <span class="mt-1 font-mono text-[10px]">WHEAT (10 🪙)</span>
+                <span class="mt-1 font-mono text-[10px] text-white">WHEAT (10 🪙)</span>
             </button>
-            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 text-xs flex flex-col items-center justify-center shadow-inner">
+            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-3 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 text-xs flex flex-col items-center justify-center shadow-inner">
                 <span class="text-xl opacity-40">🥕</span>
-                <span class="mt-1 font-mono text-[10px]">CARROT (30 🪙)</span>
+                <span class="mt-1 font-mono text-[10px] text-slate-400">CARROT (30 🪙)</span>
             </button>
         </div>
     </div>
 
-    <!-- Hệ thống thông báo nổi Toast -->
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-cyan-500 text-slate-950 font-black text-[10px] px-4 py-2 rounded-full opacity-0 pointer-events-none transition-opacity duration-300 shadow-lg shadow-cyan-500/20 z-50 uppercase border border-cyan-300"></div>
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-cyan-400 text-slate-950 font-black text-[10px] px-4 py-2 rounded-full opacity-0 pointer-events-none transition-opacity duration-300 shadow-lg z-50 uppercase border border-cyan-200"></div>
 
     <script src="app.js"></script>
 </body>
