@@ -3,136 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="google" content="notranslate">
-    <title>Farm TON Web3 Official UI</title>
+    <title>FarmerTON App</title>
     <script src="https://tailwindcss.com"></script>
     <script src="https://telegram.org"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* NỀN CỎ HOẠT HÌNH: Tone màu xanh tươi sáng chuẩn Farm TON gốc */
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         body { 
             touch-action: manipulation; 
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            background: linear-gradient(180deg, #7dd3fc 0%, #a7f3d0 35%, #4ade80 100%);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            background: linear-gradient(180deg, #7dd3fc 0%, #a7f3d0 40%, #4ade80 100%);
         }
-
-        /* KHÔNG GIAN CÁNH ĐỒNG NGHIÊNG ISOMETRIC HÌNH THOI CHUẨN GAME */
-        .farm-stage {
-            perspective: 1000px;
-        }
-        .farm-field-isometric {
-            transform: rotateX(35deg) rotateZ(-45deg);
+        .farm-stage { perspective: 1000px; }
+        .field-isometric {
+            transform: rotateX(36deg) rotateZ(-45deg);
             transform-style: preserve-3d;
         }
-
-        /* Ô ĐẤT DÀY LẬP THỂ PHONG CÁCH FARM TON */
-        .farm-ton-plot {
-            background: linear-gradient(135deg, #a0522d 0%, #5c3317 100%);
-            box-shadow: 0 8px 0 #3e2723, 0 15px 20px rgba(0,0,0,0.3);
-            border: 2px solid #bd7a4e;
+        .wood-plot {
+            background: linear-gradient(135deg, #854d0e 0%, #451a03 100%);
+            box-shadow: 0 6px 0 #1e0b00, 0 12px 15px rgba(0,0,0,0.3);
+            border: 2px solid #a16207;
             transform-style: preserve-3d;
-            transition: all 0.1s ease;
+            transition: all 0.08s ease;
         }
-        .farm-ton-plot:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #3e2723, 0 8px 10px rgba(0,0,0,0.3);
-        }
-
-        /* THANH NAV BOTTOM GIẢ GỖ BO TRÒN VÀNG CAM */
-        .wood-nav-bar {
-            background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
-            border: 3px solid #78350f;
-            box-shadow: inset 0 4px 0 rgba(255,255,255,0.4), 0 8px 16px rgba(0,0,0,0.3);
-        }
-        .wood-nav-item {
-            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
-            border: 2px solid #92400e;
-            box-shadow: 0 4px 0 #78350f;
-            transition: all 0.05s ease;
-        }
-        .wood-nav-item:active {
+        .wood-plot:active {
             transform: translateY(3px);
-            box-shadow: 0 1px 0 #78350f;
+            box-shadow: 0 3px 0 #1e0b00, 0 6px 8px rgba(0,0,0,0.3);
         }
-        .wood-nav-item.active {
-            background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%);
-            border-color: #7c2d12;
+        .wood-bar {
+            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+            border: 3px solid #78350f;
+            box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 12px rgba(0,0,0,0.25);
+        }
+        .wood-btn {
+            background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+            border: 2px solid #78350f;
+            box-shadow: 0 3px 0 #451a03;
+        }
+        .wood-btn.active {
+            background: linear-gradient(180deg, #ea580c 0%, #9a3412 100%);
             color: white;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body class="h-screen w-full flex flex-col justify-between overflow-hidden text-amber-950 font-black">
 
-    <!-- TOP BAR: Tích hợp thông tin tài khoản và nút ví TON dạ quang -->
+    <!-- Top Profile & TON Button -->
     <div class="p-4 flex justify-between items-center bg-amber-900/10 backdrop-blur-sm border-b-2 border-amber-900/20 z-50">
         <div class="flex items-center gap-2">
-            <!-- Avatar bo góc kiểu game -->
             <div id="avatar" class="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-400 to-orange-500 text-white flex items-center justify-center font-bold text-xl shadow border-2 border-white">👨‍🌾</div>
             <div class="flex flex-col">
-                <span id="username" class="font-black text-xs text-amber-950 uppercase tracking-tight drop-shadow-sm">Đang tải...</span>
-                <span class="text-[8px] bg-amber-800 text-amber-100 font-extrabold px-1.5 py-0.5 rounded-full mt-0.5 self-start shadow-inner">FARMER v1.0</span>
+                <span id="username" class="font-black text-xs text-amber-950 uppercase">Loading...</span>
+                <span class="text-[8px] bg-amber-800 text-amber-50 px-1.5 py-0.5 rounded-full mt-0.5 self-start shadow-inner font-mono">LEVEL 1</span>
             </div>
         </div>
         
-        <!-- Nút Connect Wallet chuẩn chỉ mạng TON -->
-        <button onclick="toggleWallet()" id="btn-wallet" class="bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white text-[9px] font-black px-3 py-2 rounded-xl flex items-center gap-1.5 border-b-4 border-blue-800 shadow-md active:translate-y-0.5 active:border-b-2 transition-all">
+        <button onclick="toggleWallet()" id="btn-wallet" class="bg-gradient-to-r from-sky-400 to-blue-600 text-white text-[9px] font-black px-3 py-2 rounded-xl border-b-4 border-blue-800 shadow-md active:translate-y-0.5 active:border-b-2 transition-all">
             <span>💎</span> <span id="wallet-text">CONNECT TON</span>
         </button>
     </div>
 
-    <!-- KHU VỰC CÁNH ĐỒNG: Gồm nhà kho gỗ đỏ bên trái và 6 ô ruộng nghiêng ở giữa -->
+    <!-- Main Active Stage -->
     <div class="flex-1 w-full p-4 flex flex-col items-center justify-center farm-stage relative">
-        
-        <!-- Nhà kho gỗ đỏ đặc trưng góc trên bên trái cánh đồng -->
-        <div class="absolute top-4 left-6 bg-gradient-to-b from-red-500 to-red-700 border-4 border-amber-950 p-2.5 rounded-2xl shadow-xl flex flex-col items-center gap-0.5 z-10 min-w-[70px]">
-            <span class="text-2xl drop-shadow">🏡</span>
-            <span class="text-[8px] text-white tracking-tighter bg-red-950/40 px-1.5 py-0.5 rounded-md">BARN</span>
+        <!-- Nhà kho đỏ đặc trưng FarmerTON -->
+        <div class="absolute top-4 left-6 bg-gradient-to-b from-red-500 to-red-700 border-4 border-amber-950 p-2 rounded-xl shadow-lg flex flex-col items-center z-10">
+            <span class="text-xl">🏡</span>
+            <span class="text-[7px] text-white bg-red-950/40 px-1 py-0.5 rounded mt-0.5">BARN</span>
         </div>
 
-        <!-- Bảng hiển thị token $GOLD thu hoạch -->
-        <div class="mb-4 bg-gradient-to-b from-amber-50 to-orange-100 border-2 border-amber-900/60 rounded-2xl px-6 py-1.5 flex items-center gap-1.5 shadow-md z-10">
-            <span class="text-lg">🪙</span>
-            <span id="balance" class="text-2xl font-black text-amber-900 tracking-tight font-mono">0</span>
-            <span class="text-[8px] text-white font-black bg-amber-700 px-1.5 py-0.5 rounded border border-amber-800 shadow-inner">$GOLD</span>
+        <!-- Token Balance -->
+        <div class="mb-4 bg-gradient-to-b from-amber-50 to-orange-100 border-2 border-amber-900/60 rounded-xl px-5 py-1.5 flex items-center gap-1.5 shadow-sm z-10">
+            <span class="text-base">🪙</span>
+            <span id="balance" class="text-2xl font-black text-amber-900 font-mono">0</span>
+            <span class="text-[8px] text-white bg-amber-700 px-1.5 py-0.5 rounded border border-amber-800 shadow-inner">$GOLD</span>
         </div>
 
-        <!-- Cánh đồng nghiêng hình thoi chứa 6 ô ruộng lưới 2x3 -->
-        <div class="w-full max-w-[240px] sm:max-w-[260px] farm-field-isometric p-2">
+        <!-- 6 Ô ruộng lưới chéo thoi Isometric -->
+        <div class="w-full max-w-[230px] sm:max-w-[250px] field-isometric p-1">
             <div class="grid grid-cols-2 gap-4 w-full" id="grid-container">
-                <!-- 6 ô ruộng lập thể sẽ tự sinh từ app.js -->
+                <!-- Tự kết xuất -->
             </div>
         </div>
     </div>
 
-    <!-- BOTTOM NAV BAR: Thiết kế 4 tab gỗ dày dặn y hệt Farm TON gốc -->
-    <div class="p-3 mx-4 mb-6 rounded-2xl wood-nav-bar text-amber-950 z-50 w-full max-w-sm mx-auto">
+    <!-- Bottom Navigation Bar -->
+    <div class="p-3 mx-4 mb-6 rounded-2xl wood-bar text-amber-950 z-50 w-full max-w-sm mx-auto shadow-xl">
         <div class="flex gap-2 justify-between items-center">
-            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item active">
-                <span class="text-lg">FARM</span>
-            </button>
-            <button class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item text-amber-900/60 opacity-90">
-                <span>UPGRADE</span>
-            </button>
-            <button class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item text-amber-900/60 opacity-90">
-                <span>BOOST</span>
-            </button>
-            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-2 rounded-xl text-center font-black text-[10px] flex flex-col items-center justify-center wood-nav-item">
-                <span>SHOP</span>
-            </button>
+            <button onclick="selectCrop('wheat')" id="btn-wheat" class="flex-1 py-2 rounded-xl font-black text-[9px] flex flex-col items-center wood-btn active"><span>FARM</span></button>
+            <button class="flex-1 py-2 rounded-xl font-black text-[9px] text-amber-950/40 opacity-70 flex flex-col items-center wood-btn"><span>UPGRADE</span></button>
+            <button class="flex-1 py-2 rounded-xl font-black text-[9px] text-amber-950/40 opacity-70 flex flex-col items-center wood-btn"><span>BOOST</span></button>
+            <button onclick="selectCrop('carrot')" id="btn-carrot" class="flex-1 py-2 rounded-xl font-black text-[9px] flex flex-col items-center wood-btn"><span>SHOP</span></button>
         </div>
     </div>
 
-    <!-- Thông báo nổi hệ thống -->
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 bg-amber-900 text-amber-50 font-black text-[9px] px-4 py-2 rounded-xl opacity-0 pointer-events-none transition-opacity duration-300 shadow-xl z-50 uppercase border border-amber-700 tracking-wider"></div>
+    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 bg-amber-900 text-amber-50 font-black text-[9px] px-4 py-1.5 rounded-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 uppercase border border-amber-700 tracking-wide"></div>
 
     <script src="app.js"></script>
 </body>
