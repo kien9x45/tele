@@ -1,47 +1,41 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path'); // Thư viện hệ thống xử lý đường dẫn file
+const path = require('path');
 const app = express();
 
-// Cấu hình các tính năng trung gian (Middleware)
+// Kích hoạt cấu hình trung gian bắt buộc cho API
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Cho phép truy cập trực tiếp vào các file tĩnh trong thư mục public
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Cấu hình thông số cây trồng xử lý tập trung tại Server để chống hack/cheat xu
+// Cấu hình cây trồng đồng bộ
 const CROPS_CONFIG = {
-    wheat: { name: "Lúa mì", cost: 10, revenue: 20, time: 10 }, // Thời gian chín: 10 giây
-    carrot: { name: "Cà rốt", cost: 30, revenue: 65, time: 25 }  // Thời gian chín: 25 giây
+    wheat: { name: "Lúa mì", cost: 10, revenue: 20, time: 10 },
+    carrot: { name: "Cà rốt", cost: 30, revenue: 65, time: 25 }
 };
 
-// Cơ sở dữ liệu tạm thời lưu trong RAM của Server Render
 let usersDatabase = {};
 
-// Hàm kiểm tra hoặc khởi tạo dữ liệu cho nông dân mới
 function getOrCreateUser(userId, username) {
-    if (!usersDatabase[userId]) {
-        usersDatabase[userId] = {
-            id: userId,
-            username: username || "Nông dân ẩn danh",
-            balance: 100, // Tặng sẵn 100 xu vàng trải nghiệm game ban đầu
+    // Ép kiểu userId về dạng chuỗi để tránh lỗi so sánh kiểu dữ liệu giữa Client và Server
+    const sId = String(userId);
+    if (!usersDatabase[sId]) {
+        usersDatabase[sId] = {
+            id: sId,
+            username: username || "Nông dân Mates",
+            balance: 100, // Tặng 100 xu vàng trải nghiệm
             plots: Array(6).fill(null).map(() => ({ status: 'empty', cropType: null, readyAt: null }))
         };
     }
-    return usersDatabase[userId];
+    return usersDatabase[sId];
 }
 
-// ----------------------------------------------------
-// ĐỊNH TUYẾN PHỤC VỤ GIAO DIỆN CHÍNH (SỬA LỖI CANNOT GET /)
-// ----------------------------------------------------
+// Điều hướng trang chủ phục vụ index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ----------------------------------------------------
-// CÁC HỆ THỐNG API XỬ LÝ LOGIC GAME
-// ----------------------------------------------------
-
-// API 1: Đồng bộ dữ liệu nông trại của người chơi
+// API 1: Đồng bộ dữ liệu tài khoản
 app.post('/api/user-data', (req, res) => {
     const { userId, username } = req.body;
     if (!userId) return res.status(400).json({ error: "Thiếu thông tin UserId!" });
@@ -49,7 +43,6 @@ app.post('/api/user-data', (req, res) => {
     const user = getOrCreateUser(userId, username);
     const now = Date.now();
     
-    // Tự động kiểm tra thời gian thực trên Server xem cây nào đã đến lúc chín chưa
     user.plots.forEach(plot => {
         if (plot.status === 'growing' && now >= plot.readyAt) {
             plot.status = 'ready';
@@ -59,20 +52,21 @@ app.post('/api/user-data', (req, res) => {
     res.json(user);
 });
 
-// API 2: Gửi lệnh trồng hạt giống xuống ô đất
+// API 2: Trồng cây
 app.post('/api/plant', (req, res) => {
     const { userId, plotIndex, cropType } = req.body;
-    const user = usersDatabase[userId];
-    if (!user) return res.status(404).json({ error: "Không tìm thấy thông tin người chơi" });
+    const sId = String(userId);
+    const user = usersDatabase[sId];
+    
+    if (!user) return res.status(444).json({ error: "Không tìm thấy thông tin người chơi trên hệ thống!" });
     
     const crop = CROPS_CONFIG[cropType];
     const plot = user.plots[plotIndex];
 
     if (!crop || !plot || plot.status !== 'empty' || user.balance < crop.cost) {
-        return res.status(400).json({ error: "Hành động không hợp lệ hoặc tài khoản không đủ tiền!" });
+        return res.status(400).json({ error: "Hành động gieo hạt hoặc số dư không hợp lệ!" });
     }
 
-    // Trừ số dư vàng và đặt mốc thời gian chín chính xác dựa trên giờ hệ thống Server
     user.balance -= crop.cost;
     plot.status = 'growing';
     plot.cropType = cropType;
@@ -81,28 +75,28 @@ app.post('/api/plant', (req, res) => {
     res.json({ success: true, user });
 });
 
-// API 3: Gửi lệnh thu hoạch nông sản đã chín để nhận vàng
+// API 3: Thu hoạch
 app.post('/api/harvest', (req, res) => {
     const { userId, plotIndex } = req.body;
-    const user = usersDatabase[userId];
-    if (!user) return res.status(404).json({ error: "Không tìm thấy thông tin người chơi" });
+    const sId = String(userId);
+    const user = usersDatabase[sId];
+    
+    if (!user) return res.status(444).json({ error: "Không tìm thấy thông tin người chơi trên hệ thống!" });
 
     const plot = user.plots[plotIndex];
     const now = Date.now();
 
-    // Xác minh lại thời gian chín một lần nữa tại Server trước khi cho nhận tiền
     if (plot.status === 'growing' && now >= plot.readyAt) {
         plot.status = 'ready';
     }
 
     if (plot.status !== 'ready') {
-        return res.status(400).json({ error: "Nông sản chưa chín hoặc đất đang trống!" });
+        return res.status(400).json({ error: "Nông sản chưa chín để thu hoạch!" });
     }
 
     const crop = CROPS_CONFIG[plot.cropType];
-    user.balance += crop.revenue; // Cộng tiền thưởng vàng vào tài khoản người chơi
+    user.balance += crop.revenue;
 
-    // Khởi tạo lại ô đất về trạng thái trống ban đầu
     plot.status = 'empty';
     plot.cropType = null;
     plot.readyAt = null;
@@ -110,8 +104,7 @@ app.post('/api/harvest', (req, res) => {
     res.json({ success: true, user });
 });
 
-// ----------------------------------------------------
-// KHỞI ĐỘNG CỔNG KẾT NỐI (ĐỒNG BỘ MÔI TRƯỜNG RENDER)
-// ----------------------------------------------------
+// Tối ưu cổng mạng động cho Render
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 Hệ thống Hay Farm Server đang chạy tại cổng ${port}`));
+app.listen(port, () => console.log(`🚀 Hệ thống đang chạy ổn định tại cổng ${port}`));
+
