@@ -2,11 +2,12 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const userId = String(tg?.initDataUnsafe?.user?.id || "12345"); 
-const username = tg?.initDataUnsafe?.user?.first_name || "Nông dân Mates";
+const username = tg?.initDataUnsafe?.user?.first_name || "Nông dân TON";
 const SERVER_URL = window.location.origin; 
 
 let currentSelectedCrop = 'wheat';
 let localUserData = null;
+let isWalletConnected = false;
 
 function selectCrop(type) {
     currentSelectedCrop = type;
@@ -14,12 +15,39 @@ function selectCrop(type) {
     const btnCarrot = document.getElementById('btn-carrot');
     
     if (type === 'wheat') {
-        btnWheat.className = "flex-1 py-3 rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 text-amber-950 font-black text-xs flex flex-col items-center justify-center pixel-btn border-amber-700";
-        btnCarrot.className = "flex-1 py-3 rounded-lg bg-[#3a2212] text-amber-500 font-black text-xs flex flex-col items-center justify-center pixel-btn border-[#1a0e06]";
+        btnWheat.className = "flex-1 py-3 rounded-xl bg-gradient-to-b from-cyan-600 to-blue-700 border border-cyan-400/40 text-white font-black text-xs flex flex-col items-center justify-center web3-btn";
+        btnCarrot.className = "flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 text-xs flex flex-col items-center justify-center shadow-inner";
     } else {
-        btnWheat.className = "flex-1 py-3 rounded-lg bg-[#3a2212] text-amber-500 font-black text-xs flex flex-col items-center justify-center pixel-btn border-[#1a0e06]";
-        btnCarrot.className = "flex-1 py-3 rounded-lg bg-gradient-to-b from-orange-400 to-orange-600 text-orange-950 font-black text-xs flex flex-col items-center justify-center pixel-btn border-orange-700";
+        btnWheat.className = "flex-1 py-3 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 text-xs flex flex-col items-center justify-center shadow-inner";
+        btnCarrot.className = "flex-1 py-3 rounded-xl bg-gradient-to-b from-cyan-600 to-blue-700 border border-cyan-400/40 text-white font-black text-xs flex flex-col items-center justify-center web3-btn";
     }
+}
+
+// Bổ sung hàm bật tắt kết nối ví TON giả lập
+function toggleWallet() {
+    const text = document.getElementById('wallet-text');
+    const btn = document.getElementById('btn-wallet');
+    
+    if (!isWalletConnected) {
+        isWalletConnected = true;
+        text.innerText = "UQ...8x9F"; // Địa chỉ ví TON giả định
+        btn.className = "text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-400 bg-gradient-to-r from-emerald-600 to-teal-700 shadow-lg shadow-emerald-500/20";
+        showToast("KẾT NỐI VÍ TON THÀNH CÔNG!");
+        if (tg) tg.HapticFeedback.notificationOccurred('success');
+    } else {
+        isWalletConnected = false;
+        text.innerText = "CONNECT WALLET";
+        btn.className = "web3-btn text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/20";
+        showToast("ĐÃ NGẮT KẾT NỐI VÍ.");
+        if (tg) tg.HapticFeedback.impactOccurred('light');
+    }
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.remove('opacity-0');
+    setTimeout(() => toast.classList.add('opacity-0'), 2000);
 }
 
 async function fetchUserData() {
@@ -31,12 +59,11 @@ async function fetchUserData() {
         });
         localUserData = await response.json();
         renderFarm();
-    } catch (e) { console.error("Lỗi đồng bộ máy chủ", e); }
+    } catch (e) { console.error("Lỗi kết nối", e); }
 }
 
 async function handlePlotClick(index, currentStatus) {
     let endpoint = "";
-    // GỬI KÈM CẢ USERNAME: Để server tự động phục hồi tài khoản nếu có lỗi xảy ra
     let payload = { userId, username, plotIndex: index };
 
     if (currentStatus === 'empty') {
@@ -56,16 +83,12 @@ async function handlePlotClick(index, currentStatus) {
             body: JSON.stringify(payload)
         });
         const resData = await response.json();
-        
-        if (resData.error) {
-            alert("Lỗi: " + resData.error);
-            return;
-        }
+        if (resData.error) return showToast(resData.error);
         
         localUserData = resData.user;
         renderFarm();
         if (tg) tg.HapticFeedback.impactOccurred('medium');
-    } catch (e) { console.error("Lỗi kết nối", e); }
+    } catch (e) { console.error("Lỗi", e); }
 }
 
 function renderFarm() {
@@ -78,67 +101,51 @@ function renderFarm() {
     grid.innerHTML = '';
 
     localUserData.plots.forEach((plot, index) => {
-        let style = "pixel-plot";
+        let style = "neon-border bg-slate-900/60";
         let content = "";
         const now = Date.now();
 
+        // 1. Ô ĐẤT TRỐNG WEB3 (Ma trận mạch điện tử rỗng)
         if (plot.status === 'empty') {
             content = `
-                <svg viewBox="0 0 32 32" class="w-10 h-10" style="image-rendering: pixelated;">
-                    <rect x="4" y="8" width="24" height="16" fill="#3d2314"/>
-                    <rect x="6" y="10" width="20" height="12" fill="#472917"/>
-                    <rect x="8" y="12" width="4" height="2" fill="#2b180a"/>
-                    <rect x="18" y="16" width="6" height="2" fill="#2b180a"/>
+                <svg viewBox="0 0 40 40" class="w-10 h-10 opacity-30">
+                    <rect x="5" y="5" width="30" height="30" rx="4" fill="none" stroke="#00c6ff" stroke-width="1.5" stroke-dasharray="4"/>
+                    <circle cx="20" cy="20" r="3" fill="#00c6ff"/>
                 </svg>
             `;
         } 
+        // 2. CÂY ĐANG LỚN (Mạch lõi hạt nhân nhấp nháy phát sáng)
         else if (plot.status === 'growing' && now < plot.readyAt) {
+            style = "neon-border bg-cyan-950/20 border-cyan-500/50";
             const secondsLeft = Math.ceil((plot.readyAt - now) / 1000);
             content = `
                 <div class="w-full h-full flex flex-col items-center justify-center relative p-1">
-                    <svg viewBox="0 0 32 32" class="w-9 h-9 animate-pulse" style="image-rendering: pixelated;">
-                        <rect x="15" y="16" width="2" height="10" fill="#4caf50"/>
-                        <rect x="12" y="14" width="4" height="3" fill="#8bc34a"/>
-                        <rect x="16" y="12" width="5" height="3" fill="#8bc34a"/>
+                    <svg viewBox="0 0 40 40" class="w-9 h-9 animate-pulse">
+                        <circle cx="20" cy="20" r="10" fill="none" stroke="#00c6ff" stroke-width="2"/>
+                        <path d="M20 10v20M10 20h20" stroke="#00c6ff" stroke-width="1.5"/>
                     </svg>
-                    <div class="absolute bottom-1 bg-[#1a0e06] border border-[#3a2212] text-green-400 font-mono text-[7px] px-1 py-0.5 rounded scale-90">
-                        ${secondsLeft}s
+                    <div class="absolute bottom-1 bg-cyan-500 text-slate-950 font-mono text-[7px] font-black px-1.5 py-0.5 rounded whitespace-nowrap scale-90">
+                        ${secondsLeft}S
                     </div>
                 </div>
             `;
         } 
+        // 3. NÔNG SẢN ĐÃ CHÍN (Biểu tượng Token vàng phát sáng chói lọi + Bounce nhảy khối)
         else if (plot.status === 'ready' || (plot.status === 'growing' && now >= plot.readyAt)) {
-            style = "pixel-plot bg-emerald-950/30 border-emerald-500 animate-pulse";
+            style = "neon-plot-ready bg-emerald-950/40 border-emerald-400 animate-bounce";
             plot.status = 'ready'; 
 
-            let graphicSvg = "";
-            if (plot.cropType === 'wheat') {
-                graphicSvg = `
-                    <svg viewBox="0 0 32 32" class="w-10 h-10" style="image-rendering: pixelated;">
-                        <path d="M16 26V8M13 13l3-3 3 3M13 18l3-3 3 3M13 23l3-3 3 3" stroke="#fcd34d" stroke-width="2" stroke-linecap="square"/>
-                        <circle cx="16" cy="5" r="1.5" fill="#fbbf24"/>
-                    </svg>
-                `;
-            } else {
-                graphicSvg = `
-                    <svg viewBox="0 0 32 32" class="w-10 h-10" style="image-rendering: pixelated;">
-                        <rect x="14" y="6" width="4" height="4" fill="#22c55e"/>
-                        <path d="M12 10h8l-2 14h-4z" fill="#ea580c"/>
-                        <rect x="13" y="14" width="6" height="1.5" fill="#b45309"/>
-                    </svg>
-                `;
-            }
-
+            let icon = plot.cropType === 'wheat' ? '🌾' : '🥕';
             content = `
                 <div class="w-full h-full flex flex-col items-center justify-center relative">
-                    ${graphicSvg}
-                    <span class="absolute bottom-0.5 bg-[#22c55e] border border-[#14532d] text-white text-[7px] font-black px-1 rounded uppercase tracking-wide scale-90">TAKE</span>
+                    <span class="text-2xl drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]">${icon}</span>
+                    <span class="absolute bottom-1 bg-emerald-500 text-slate-950 text-[7px] font-black px-1.5 py-0.5 rounded shadow-md uppercase tracking-wider scale-90">CLAIM</span>
                 </div>
             `;
         }
 
         grid.insertAdjacentHTML('beforeend', `
-            <button onclick="handlePlotClick(${index}, '${plot.status}')" class="${style} aspect-square flex items-center justify-center overflow-hidden rounded-xl">
+            <button onclick="handlePlotClick(${index}, '${plot.status}')" class="${style} aspect-square flex items-center justify-center overflow-hidden rounded-2xl border transition-all duration-75 active:scale-95">
                 ${content}
             </button>
         `);
